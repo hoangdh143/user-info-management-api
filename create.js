@@ -5,21 +5,35 @@ import { success, failure } from "./libs/response-lib";
 export async function main(event, context, callback) {
     const data = JSON.parse(event.body);
 
-    const params = {
-        TableName: process.env.tableName,
-        Item: {
-            userId: event.requestContext.identity.cognitoIdentityId,
-            noteId: uuid.v1(),
-            content: data.content,
-            attachment: data.attachment,
-            createdAt: Date.now()
+    const userIdQueryParams = {
+        TableName: process.env.userTableName,
+        Key: {
+            token: event.queryStringParameters.token
         }
     };
 
     try {
-        await dynamoDbLib.call("put", params);
-        return success(params.Item);
+        const result = await dynamoDbLib.call("get", userIdQueryParams);
+        if (result.Item) {
+            const params = {
+                TableName: process.env.contactTableName,
+                Item: {
+                    userId: result.Item.userId,
+                    contactId: uuid.v1(),
+                    name: data.name,
+                    phone: data.phone,
+                    email: data.email,
+                    address: data.address,
+                    createdAt: Date.now()
+                }
+            };
+
+            console.log(params);
+            await dynamoDbLib.call("put", params);
+            return success(params.Item);
+        }
     } catch (e) {
+        console.log(e);
         return failure({ status: false });
     }
 }

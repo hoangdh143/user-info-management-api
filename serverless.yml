@@ -14,7 +14,10 @@ custom:
   # commands. Or fallsback to what we have set in the provider section.
   stage: ${opt:stage, self:provider.stage}
   # Set the table name here so we can use it while testing locally
-  tableName: ${self:custom.stage}-notes
+  #User List
+  userTableName: ${self:custom.stage}-users-2
+  #Contact Info Submitted
+  contactTableName: ${self:custom.stage}-contacts
 
 provider:
   name: aws
@@ -25,7 +28,8 @@ provider:
   # These environment variables are made available to our functions
   # under process.env.
   environment:
-    tableName: ${self:custom.tableName}
+    userTableName: ${self:custom.userTableName}
+    contactTableName: ${self:custom.contactTableName}
     stripeSecretKey: ${env:STRIPE_SECRET_KEY}
 
   iamRoleStatements:
@@ -41,7 +45,8 @@ provider:
       # Restrict our IAM role permissions to
       # the specific table for the stage
       Resource:
-        - "Fn::GetAtt": [ NotesTable, Arn ]
+        - "Fn::GetAtt": [ UserTable, Arn ]
+        - "Fn::GetAtt": [ ContactTable, Arn ]
 
 functions:
   # Defines an HTTP API endpoint that calls the main function in create.js
@@ -54,10 +59,9 @@ functions:
     handler: create.main
     events:
       - http:
-          path: notes
+          path: contacts
           method: post
           cors: true
-          authorizer: aws_iam
 
   get:
     # Defines an HTTP API endpoint that calls the main function in get.js
@@ -66,7 +70,7 @@ functions:
     handler: get.main
     events:
       - http:
-          path: notes/{id}
+          path: contacts/{id}
           method: get
           cors: true
           authorizer: aws_iam
@@ -78,7 +82,7 @@ functions:
     handler: list.main
     events:
       - http:
-          path: notes
+          path: contacts
           method: get
           cors: true
           authorizer: aws_iam
@@ -90,7 +94,7 @@ functions:
     handler: update.main
     events:
       - http:
-          path: notes/{id}
+          path: contacts/{id}
           method: put
           cors: true
           authorizer: aws_iam
@@ -102,10 +106,18 @@ functions:
     handler: delete.main
     events:
       - http:
-          path: notes/{id}
+          path: contacts/{id}
           method: delete
           cors: true
           authorizer: aws_iam
+
+  postSignUp:
+    handler: postSignUp.main
+    events:
+      - cognitoUserPool:
+          pool: ${self:custom.stage}-user-pool
+          trigger: PostConfirmation
+          existing: true
 
   billing:
     # Defines an HTTP API endpoint that calls the main function in billing.js

@@ -47,6 +47,7 @@ provider:
       Resource:
         - "Fn::GetAtt": [ UserTable, Arn ]
         - "Fn::GetAtt": [ ContactTable, Arn ]
+        - "arn:aws:dynamodb:${self:provider.region}:*:table/${self:custom.userTableName}/index/*"
 
 functions:
   # Defines an HTTP API endpoint that calls the main function in create.js
@@ -55,6 +56,18 @@ functions:
   # - cors: enabled CORS (Cross-Origin Resource Sharing) for browser cross
   #     domain api call
   # - authorizer: authenticate using the AWS IAM role
+  getToken:
+    # Defines an HTTP API endpoint that calls the main function in get.js
+    # - path: url path is /token
+    # - method: GET request
+    handler: getToken.main
+    events:
+      - http:
+          path: token
+          method: get
+          cors: true
+          authorizer: aws_iam
+
   create:
     handler: create.main
     events:

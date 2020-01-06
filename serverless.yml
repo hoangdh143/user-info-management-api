@@ -124,14 +124,6 @@ functions:
           cors: true
           authorizer: aws_iam
 
-  postSignUp:
-    handler: postSignUp.main
-    events:
-      - cognitoUserPool:
-          pool: ${self:custom.stage}-user-pool
-          trigger: PostConfirmation
-          existing: true
-
   billing:
     # Defines an HTTP API endpoint that calls the main function in billing.js
     # - path: url path is /billing

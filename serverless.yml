@@ -31,6 +31,9 @@ provider:
     userTableName: ${self:custom.userTableName}
     contactTableName: ${self:custom.contactTableName}
     stripeSecretKey: ${env:STRIPE_SECRET_KEY}
+    twilioAccountSid: ${env:TWILIO_ACCOUNT_SID}
+    twilioAuthToken: ${env:TWILIO_AUTH_TOKEN}
+    twilioPhoneNumber: ${env:TWILIO_PHONE_NUMBER}
 
   iamRoleStatements:
     - Effect: Allow
@@ -65,6 +68,17 @@ functions:
       - http:
           path: token
           method: get
+          cors: true
+          authorizer: aws_iam
+  sendMessage:
+    # Defines an HTTP API endpoint that calls the main function in get.js
+    # - path: url path is /token
+    # - method: GET request
+    handler: sendMessage.main
+    events:
+      - http:
+          path: message
+          method: post
           cors: true
           authorizer: aws_iam
 

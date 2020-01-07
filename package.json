@@ -21,6 +21,7 @@
   "dependencies": {
     "jest": "^24.9.0",
     "stripe": "^7.14.0",
+    "twilio": "^3.39.1",
     "uuid": "^3.3.3"
   }
 }

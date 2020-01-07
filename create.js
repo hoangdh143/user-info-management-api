@@ -24,6 +24,7 @@ export async function main(event, context, callback) {
                     phone: data.phone,
                     email: data.email,
                     address: data.address,
+                    birthday: data.birthday,
                     createdAt: Date.now()
                 }
             };
